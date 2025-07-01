@@ -1,0 +1,162 @@
+[
+  {
+    "start": "Mumbai,India",
+    "end": "Delhi,India",
+    "distance_km": 1329.65,
+    "duration_minutes": 977.8,
+    "eta": {
+      "hours": 16,
+      "minutes": 17.8
+    }
+  },
+  {
+    "start": "Mumbai,India",
+    "end": "Bangalore,India",
+    "distance_km": 998.71,
+    "duration_minutes": 743.6,
+    "eta": {
+      "hours": 12,
+      "minutes": 23.6
+    }
+  },
+  {
+    "start": "Bangalore,India",
+    "end": "NewDelhi,India",
+    "distance_km": 1317.35,
+    "duration_minutes": 1014.0,
+    "eta": {
+      "hours": 16,
+      "minutes": 54.0
+    }
+  },
+  {
+    "start": "Bangalore,India",
+    "end": "Chennai,India",
+    "distance_km": 321.86,
+    "duration_minutes": 247.6,
+    "eta": {
+      "hours": 4,
+      "minutes": 7.6
+    }
+  },
+  {
+    "start": "Chennai,India",
+    "end": "Kolkata,India",
+    "distance_km": 1669.15,
+    "duration_minutes": 1223.2,
+    "eta": {
+      "hours": 20,
+      "minutes": 23.2
+    }
+  },
+  {
+    "start": "Chennai,India",
+    "end": "Hyderabad,India",
+    "distance_km": 629.03,
+    "duration_minutes": 471.8,
+    "eta": {
+      "hours": 7,
+      "minutes": 51.8
+    }
+  },
+  {
+    "start": "Pune,India",
+    "end": "Hyderabad,India",
+    "distance_km": 562.78,
+    "duration_minutes": 399.5,
+    "eta": {
+      "hours": 6,
+      "minutes": 39.5
+    }
+  },
+  {
+    "start": "Kolkata,India",
+    "end": "Ahmedabad,India",
+    "distance_km": 1962.16,
+    "duration_minutes": 1405.5,
+    "eta": {
+      "hours": 23,
+      "minutes": 25.5
+    }
+  },
+  {
+    "start": "NewDelhi,India",
+    "end": "Pune,India",
+    "distance_km": 926.72,
+    "duration_minutes": 632.7,
+    "eta": {
+      "hours": 10,
+      "minutes": 32.7
+    }
+  },
+  {
+    "start": "NewDelhi,India",
+    "end": "Jaipur,India",
+    "distance_km": 813.63,
+    "duration_minutes": 620.8,
+    "eta": {
+      "hours": 10,
+      "minutes": 20.8
+    }
+  },
+  {
+    "start": "Pune,India",
+    "end": "Lucknow,India",
+    "distance_km": 1408.18,
+    "duration_minutes": 1017.1,
+    "eta": {
+      "hours": 16,
+      "minutes": 57.1
+    }
+  },
+  {
+    "start": "Lucknow,India",
+    "end": "Pune,India",
+    "distance_km": 1408.16,
+    "duration_minutes": 1012.2,
+    "eta": {
+      "hours": 16,
+      "minutes": 52.2
+    }
+  },
+  {
+    "start": "Lucknow,India",
+    "end": "Kolkata,India",
+    "distance_km": 1020.13,
+    "duration_minutes": 698.3,
+    "eta": {
+      "hours": 11,
+      "minutes": 38.3
+    }
+  },
+  {
+    "start": "Pune,India",
+    "end": "Mumbai,India",
+    "distance_km": 157.44,
+    "duration_minutes": 133.5,
+    "eta": {
+      "hours": 2,
+      "minutes": 13.5
+    }
+  },
+  {
+    "start": "Singrauli,India",
+    "end": "Delhi,India",
+    "distance_km": 961.07,
+    "duration_minutes": 652.7,
+    "eta": {
+      "hours": 10,
+      "minutes": 52.7
+    }
+  },
+  {
+    "start": "Singrauli,India",
+    "end": "Mumbai,India",
+    "distance_km": 1455.77,
+    "duration_minutes": 964.6,
+    "eta": {
+      "hours": 16,
+      "minutes": 4.6
+    }
+  }
+]

@@ -1,0 +1,136 @@
+{
+  "weather_data": [
+    {
+      "location": "New Delhi",
+      "real_time_weather": {
+        "air_pressure": 976.15,
+        "humidity": 52,
+        "precipitation": 0,
+        "temperature": 28.6,
+        "weather_condition": "Clear",
+        "wind_direction": "South-East",
+        "wind_speed": 3
+      }
+    },
+    {
+      "location": "Mumbai",
+      "real_time_weather": {
+        "air_pressure": 1004.04,
+        "humidity": 94,
+        "precipitation": 0,
+        "temperature": 25.7,
+        "weather_condition": "Clear",
+        "wind_direction": "South-East",
+        "wind_speed": 1.2
+      }
+    },
+    {
+      "location": "Bangalore",
+      "real_time_weather": {
+        "air_pressure": 908.23,
+        "humidity": 85,
+        "precipitation": 0,
+        "temperature": 21.7,
+        "weather_condition": "Clear",
+        "wind_direction": "South-West",
+        "wind_speed": 1.7
+      }
+    },
+    {
+      "location": "Chennai",
+      "real_time_weather": {
+        "air_pressure": 1005.81,
+        "humidity": 88,
+        "precipitation": 0,
+        "temperature": 28.4,
+        "weather_condition": "Clear",
+        "wind_direction": "South-West",
+        "wind_speed": 3.5
+      }
+    },
+    {
+      "location": "Kolkata",
+      "real_time_weather": {
+        "air_pressure": 1004.11,
+        "humidity": 93,
+        "precipitation": 0,
+        "temperature": 24.6,
+        "weather_condition": "Cloudy",
+        "wind_direction": "East",
+        "wind_speed": 0.7
+      }
+    },
+    {
+      "location": "Hyderabad",
+      "real_time_weather": {
+        "air_pressure": 947.05,
+        "humidity": 60,
+        "precipitation": 0,
+        "temperature": 27,
+        "weather_condition": "Cloudy",
+        "wind_direction": "South-West",
+        "wind_speed": 1.3
+      }
+    },
+    {
+      "location": "Ahmedabad",
+      "real_time_weather": {
+        "air_pressure": 999.43,
+        "humidity": 30,
+        "precipitation": 0,
+        "temperature": 27.9,
+        "weather_condition": "Clear",
+        "wind_direction": "West",
+        "wind_speed": 2.7
+      }
+    },
+    {
+      "location": "Pune",
+      "real_time_weather": {
+        "air_pressure": 937.29,
+        "humidity": 55,
+        "precipitation": 0,
+        "temperature": 23.2,
+        "weather_condition": "Clear",
+        "wind_direction": "West",
+        "wind_speed": 2.6
+      }
+    },
+    {
+      "location": "Jaipur",
+      "real_time_weather": {
+        "air_pressure": 955.75,
+        "humidity": 18,
+        "precipitation": 0,
+        "temperature": 30.2,
+        "weather_condition": "Clear",
+        "wind_direction": "West",
+        "wind_speed": 3.9
+      }
+    },
+    {
+      "location": "Lucknow",
+      "real_time_weather": {
+        "air_pressure": 989.94,
+        "humidity": 69,
+        "precipitation": 0,
+        "temperature": 26.3,
+        "weather_condition": "Clear",
+        "wind_direction": "South-East",
+        "wind_speed": 3.7
+      }
+    },
+    {
+      "location": "Singrauli",
+      "real_time_weather": {
+        "air_pressure": 964.18,
+        "humidity": 67,
+        "precipitation": 0,
+        "temperature": 27.1,
+        "weather_condition": "Clear",
+        "wind_direction": "East",
+        "wind_speed": 2
+      }
+    }
+  ]
+}

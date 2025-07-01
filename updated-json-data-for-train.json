@@ -1,0 +1,222 @@
+{
+  "indian_railways": {
+    "trains": [
+      {
+        "schedule": [
+          {
+            "arrivalTime": "--",
+            "departureTime": "06:00",
+            "distance": "0",
+            "haltTime": "--",
+            "routeNumber": "1",
+            "stationCode": "NDLS",
+            "stationName": "New Delhi",
+            "stnSerialNumber": "1"
+          }
+        ],
+        "train_name": "Shatabdi Expres",
+        "train_number": "12002"
+      },
+      {
+        "schedule": [
+          {
+            "arrivalTime": "--",
+            "departureTime": "16:55",
+            "distance": "0",
+            "haltTime": "--",
+            "routeNumber": "1",
+            "stationCode": "NDLS",
+            "stationName": "New Delhi",
+            "stnSerialNumber": "1"
+          },
+          {
+            "arrivalTime": "08:35",
+            "departureTime": "--",
+            "distance": "1384",
+            "haltTime": "--",
+            "routeNumber": "1",
+            "stationCode": "MMCT",
+            "stationName": "Mumbai Central",
+            "stnSerialNumber": "8"
+          }
+        ],
+        "train_name": "Mmct Tejas Raj",
+        "train_number": "12952"
+      },
+      {
+        "schedule": [
+          {
+            "arrivalTime": "21:15",
+            "departureTime": "--",
+            "distance": "362",
+            "haltTime": "--",
+            "routeNumber": "1",
+            "stationCode": "MAS",
+            "stationName": "Mgr Chennai Ctl",
+            "stnSerialNumber": "14"
+          }
+        ],
+        "train_name": "Brindavan Sf Ex",
+        "train_number": "12640"
+      },
+      {
+        "schedule": [
+          {
+            "arrivalTime": "--",
+            "departureTime": "07:00",
+            "distance": "0",
+            "haltTime": "--",
+            "routeNumber": "1",
+            "stationCode": "MAS",
+            "stationName": "Mgr Chennai Ctl",
+            "stnSerialNumber": "1"
+          }
+        ],
+        "train_name": "Coromandel Exp",
+        "train_number": "12842"
+      },
+      {
+        "schedule": [
+          {
+            "arrivalTime": "17:45",
+            "departureTime": "--",
+            "distance": "1588",
+            "haltTime": "--",
+            "routeNumber": "1",
+            "stationCode": "HYB",
+            "stationName": "Hyderabad Decan",
+            "stnSerialNumber": "57"
+          }
+        ],
+        "train_name": "East Coast Exp",
+        "train_number": "18045"
+      },
+      {
+        "schedule": [
+          {
+            "arrivalTime": "01:20",
+            "departureTime": "01:25",
+            "distance": "597",
+            "haltTime": "05:00",
+            "routeNumber": "1",
+            "stationCode": "PUNE",
+            "stationName": "Pune Jn",
+            "stnSerialNumber": "11"
+          },
+          {
+            "arrivalTime": "13:15",
+            "departureTime": "13:25",
+            "distance": "1231",
+            "haltTime": "10:00",
+            "routeNumber": "1",
+            "stationCode": "ADI",
+            "stationName": "Ahmedabad Jn",
+            "stnSerialNumber": "25"
+          }
+        ],
+        "train_name": "Rajkot Sf Exp",
+        "train_number": "22718"
+      },
+      {
+        "schedule": [
+          {
+            "arrivalTime": "--",
+            "departureTime": "20:15",
+            "distance": "0",
+            "haltTime": "--",
+            "routeNumber": "1",
+            "stationCode": "ADI",
+            "stationName": "Ahmedabad Jn",
+            "stnSerialNumber": "1"
+          },
+          {
+            "arrivalTime": "07:30",
+            "departureTime": "--",
+            "distance": "635",
+            "haltTime": "--",
+            "routeNumber": "1",
+            "stationCode": "PUNE",
+            "stationName": "Pune Jn",
+            "stnSerialNumber": "17"
+          }
+        ],
+        "train_name": "Adi Pune Sf",
+        "train_number": "22185"
+      },
+      {
+        "schedule": [
+          {
+            "arrivalTime": "--",
+            "departureTime": "17:30",
+            "distance": "0",
+            "haltTime": "--",
+            "routeNumber": "1",
+            "stationCode": "PUNE",
+            "stationName": "Pune Jn",
+            "stnSerialNumber": "1"
+          },
+          {
+            "arrivalTime": "14:40",
+            "departureTime": "--",
+            "distance": "1302",
+            "haltTime": "--",
+            "routeNumber": "1",
+            "stationCode": "JP",
+            "stationName": "Jaipur",
+            "stnSerialNumber": "15"
+          }
+        ],
+        "train_name": "Pune Jaipur Exp",
+        "train_number": "12939"
+      },
+      {
+        "schedule": [
+          {
+            "arrivalTime": "--",
+            "departureTime": "21:05",
+            "distance": "0",
+            "haltTime": "--",
+            "routeNumber": "1",
+            "stationCode": "JP",
+            "stationName": "Jaipur",
+            "stnSerialNumber": "1"
+          }
+        ],
+        "train_name": "Jp Gtnr Exp",
+        "train_number": "19715"
+      },
+      {
+        "schedule": [
+          {
+            "arrivalTime": "12:20",
+            "departureTime": "--",
+            "distance": "362",
+            "haltTime": "--",
+            "routeNumber": "1",
+            "stationCode": "MAS",
+            "stationName": "Mgr Chennai Ctl",
+            "stnSerialNumber": "13"
+          }
+        ],
+        "train_name": "Lalbagh Sf Exp",
+        "train_number": "12608"
+      },
+      {
+        "schedule": [
+          {
+            "arrivalTime": "--",
+            "departureTime": "--",
+            "distance": "--",
+            "haltTime": "--",
+            "routeNumber": "--",
+            "stationCode": "--",
+            "stationName": "--",
+            "stnSerialNumber": "--"
+          }
+        ],
+        "train_name": "Sgrl Pnbe Exp",
+        "train_number": "13349"
+      }
+    ]
+  }
+}
