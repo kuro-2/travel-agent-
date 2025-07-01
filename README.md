@@ -61,7 +61,7 @@ Travel Agent/
 ### 1. Clone the Repository
 
 ```sh
-git clone <your-repo-url>
+git clone https://github.com/kuro-2/travel-agent-.git
 cd "Travel Agent"
 ```
 
