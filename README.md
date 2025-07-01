@@ -32,11 +32,9 @@ Travel Agent/
 │   ├── updated-json-data-for-train.json
 │   ├── updated-routes-data.json
 │   ├── tourism-data.json
-│   └── ...
+│  
 ├── templates/
 │   └── index.html             # Chat UI
-├── static/
-│   └── ...                    # Static assets (CSS, JS)
 ├── .env                       # Environment variables (not committed)
 ├── .gitignore
 └── README.md
