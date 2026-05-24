@@ -4,6 +4,7 @@ from flask import (
     Flask, request, jsonify, session,
     redirect, url_for, render_template,
 )
+from werkzeug.middleware.proxy_fix import ProxyFix
 from dotenv import load_dotenv
 
 from promptflow_router import parse_and_respond
@@ -23,6 +24,9 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
+# Trust Render's (and any other reverse proxy's) X-Forwarded-Proto/Host headers
+# so url_for(_external=True) generates https:// URLs in production.
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 _secret = os.getenv("FLASK_SECRET_KEY")
 if not _secret:
     import warnings
