@@ -1,11 +1,13 @@
-from flask import Flask, jsonify, request
+import os
 import requests
+from flask import jsonify, request, Blueprint
+from dotenv import load_dotenv
 
-from flask import Blueprint
+load_dotenv()
 
 road_api = Blueprint('road_api', __name__)
 
-ORS_API_KEY = "5b3ce3597851110001cf62481f032e166f6e4d15af01bfe0ef9bec04"
+ORS_API_KEY = os.getenv("ORS_API_KEY", "")
 DIRECTIONS_URL = "https://api.openrouteservice.org/v2/directions/driving-car"
 GEOCODE_URL = "https://api.openrouteservice.org/geocode/search"
 
@@ -67,4 +69,3 @@ def get_route():
 
 
 
-#http://127.0.0.1:5000/route?start=NewDelhi&end=Mumbai

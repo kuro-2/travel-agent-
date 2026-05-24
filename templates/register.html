@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Create Account — Travel Agent</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #dfe9f3 0%, #f5f9ff 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(74, 144, 226, 0.15);
+      padding: 48px 40px 40px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .brand-icon { font-size: 2.4em; margin-bottom: 8px; }
+    .brand h1 {
+      color: #4a90e2;
+      font-size: 1.7em;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .brand p { color: #9aabbc; font-size: 0.88em; margin-top: 5px; }
+
+    .alert {
+      display: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.85em;
+      margin-bottom: 18px;
+      border-left: 3px solid;
+    }
+    .alert.error  { background: #fde8e8; color: #c0392b; border-left-color: #e74c3c; }
+    .alert.success { background: #e8f5e9; color: #27ae60; border-left-color: #27ae60; }
+
+    .field { margin-bottom: 16px; }
+    label {
+      display: block;
+      font-size: 0.82em;
+      font-weight: 500;
+      color: #5a6a7a;
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #dde5ee;
+      border-radius: 8px;
+      font-size: 0.95em;
+      font-family: inherit;
+      color: #2c3e50;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      background: #fafcff;
+    }
+    input:focus {
+      border-color: #4a90e2;
+      box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.12);
+      background: #fff;
+    }
+
+    .hint {
+      font-size: 0.76em;
+      color: #aab8c5;
+      margin-top: 4px;
+    }
+
+    .password-strength {
+      height: 4px;
+      border-radius: 2px;
+      margin-top: 6px;
+      background: #e8edf2;
+      overflow: hidden;
+    }
+    .password-strength-bar {
+      height: 100%;
+      width: 0;
+      border-radius: 2px;
+      transition: width 0.3s, background 0.3s;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 13px;
+      background: #4a90e2;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.98em;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 8px;
+      letter-spacing: 0.3px;
+    }
+    .btn:hover:not(:disabled) { background: #357ab8; }
+    .btn:active:not(:disabled) { transform: scale(0.99); }
+    .btn:disabled { background: #a0c4f0; cursor: not-allowed; }
+
+    .divider {
+      text-align: center;
+      color: #b0bec5;
+      font-size: 0.82em;
+      margin: 22px 0 0;
+    }
+    .divider a {
+      color: #4a90e2;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .divider a:hover { text-decoration: underline; }
+
+    @media (max-width: 480px) {
+      .card { padding: 36px 24px 30px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <div class="brand-icon">✈️</div>
+      <h1>Travel Agent</h1>
+      <p>Create your free account</p>
+    </div>
+
+    <div class="alert" id="alertBox"></div>
+
+    <form id="registerForm" novalidate>
+      <div class="field">
+        <label for="fullName">Full name <span style="color:#b0bec5">(optional)</span></label>
+        <input type="text" id="fullName" placeholder="Your name" autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="email">Email address</label>
+        <input type="email" id="email" placeholder="you@example.com" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="At least 8 characters" autocomplete="new-password" required>
+        <div class="password-strength">
+          <div class="password-strength-bar" id="strengthBar"></div>
+        </div>
+        <p class="hint" id="strengthHint"></p>
+      </div>
+      <div class="field">
+        <label for="confirmPassword">Confirm password</label>
+        <input type="password" id="confirmPassword" placeholder="Repeat your password" autocomplete="new-password" required>
+      </div>
+      <button type="submit" class="btn" id="submitBtn">Create Account</button>
+    </form>
+
+    <p class="divider">Already have an account? <a href="/login">Sign in</a></p>
+  </div>
+
+  <script>
+    const alertBox = document.getElementById('alertBox');
+    const submitBtn = document.getElementById('submitBtn');
+    const passwordInput = document.getElementById('password');
+    const strengthBar = document.getElementById('strengthBar');
+    const strengthHint = document.getElementById('strengthHint');
+
+    function showAlert(msg, type = 'error') {
+      alertBox.textContent = msg;
+      alertBox.className = 'alert ' + type;
+      alertBox.style.display = 'block';
+    }
+
+    function getStrength(pw) {
+      let score = 0;
+      if (pw.length >= 8)  score++;
+      if (pw.length >= 12) score++;
+      if (/[A-Z]/.test(pw)) score++;
+      if (/[0-9]/.test(pw)) score++;
+      if (/[^A-Za-z0-9]/.test(pw)) score++;
+      return score;
+    }
+
+    passwordInput.addEventListener('input', () => {
+      const pw = passwordInput.value;
+      const score = getStrength(pw);
+      const pct = pw.length === 0 ? 0 : Math.min(100, score * 20);
+      const colors = ['#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#27ae60'];
+      const labels = ['', 'Weak', 'Fair', 'Good', 'Strong', 'Very strong'];
+      strengthBar.style.width = pct + '%';
+      strengthBar.style.background = colors[score - 1] || '#e8edf2';
+      strengthHint.textContent = pw.length > 0 ? labels[score] || '' : '';
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+
+      const email = document.getElementById('email').value.trim();
+      const password = passwordInput.value;
+      const confirm = document.getElementById('confirmPassword').value;
+      const fullName = document.getElementById('fullName').value.trim();
+
+      if (!email || !password) return showAlert('Email and password are required.');
+      if (password.length < 8) return showAlert('Password must be at least 8 characters.');
+      if (password !== confirm) return showAlert('Passwords do not match.');
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating account…';
+
+      try {
+        const res = await fetch('/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, full_name: fullName }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          if (data.confirm_email) {
+            showAlert(data.message, 'success');
+            submitBtn.textContent = 'Check your email';
+          } else {
+            window.location.href = '/';
+          }
+        } else {
+          showAlert(data.error || 'Registration failed. Please try again.');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Create Account';
+        }
+      } catch {
+        showAlert('Network error. Please check your connection and try again.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create Account';
+      }
+    });
+  </script>
+</body>
+</html>

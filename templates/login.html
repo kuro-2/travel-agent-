@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sign In — Travel Agent</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #dfe9f3 0%, #f5f9ff 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(74, 144, 226, 0.15);
+      padding: 48px 40px 40px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .brand-icon {
+      font-size: 2.4em;
+      margin-bottom: 8px;
+    }
+    .brand h1 {
+      color: #4a90e2;
+      font-size: 1.7em;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .brand p {
+      color: #9aabbc;
+      font-size: 0.88em;
+      margin-top: 5px;
+    }
+
+    .alert {
+      display: none;
+      background: #fde8e8;
+      color: #c0392b;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.85em;
+      margin-bottom: 18px;
+      border-left: 3px solid #e74c3c;
+    }
+    .alert.success {
+      background: #e8f5e9;
+      color: #27ae60;
+      border-left-color: #27ae60;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+    label {
+      display: block;
+      font-size: 0.82em;
+      font-weight: 500;
+      color: #5a6a7a;
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #dde5ee;
+      border-radius: 8px;
+      font-size: 0.95em;
+      font-family: inherit;
+      color: #2c3e50;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      background: #fafcff;
+    }
+    input:focus {
+      border-color: #4a90e2;
+      box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.12);
+      background: #fff;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 13px;
+      background: #4a90e2;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.98em;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 6px;
+      letter-spacing: 0.3px;
+    }
+    .btn:hover:not(:disabled) { background: #357ab8; }
+    .btn:active:not(:disabled) { transform: scale(0.99); }
+    .btn:disabled { background: #a0c4f0; cursor: not-allowed; }
+
+    .divider {
+      text-align: center;
+      color: #b0bec5;
+      font-size: 0.82em;
+      margin: 22px 0 0;
+    }
+    .divider a {
+      color: #4a90e2;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .divider a:hover { text-decoration: underline; }
+
+    @media (max-width: 480px) {
+      .card { padding: 36px 24px 30px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <div class="brand-icon">✈️</div>
+      <h1>Travel Agent</h1>
+      <p>Your AI travel companion for India</p>
+    </div>
+
+    <div class="alert" id="alertBox"></div>
+
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <label for="email">Email address</label>
+        <input type="email" id="email" placeholder="you@example.com" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Your password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn" id="submitBtn">Sign In</button>
+    </form>
+
+    <p class="divider">Don't have an account? <a href="/register">Create one</a></p>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const alertBox = document.getElementById('alertBox');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function showAlert(msg, type = 'error') {
+      alertBox.textContent = msg;
+      alertBox.className = 'alert ' + type;
+      alertBox.style.display = 'block';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Signing in…';
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        const res = await fetch('/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          window.location.href = '/';
+        } else {
+          showAlert(data.error || 'Login failed. Please try again.');
+        }
+      } catch {
+        showAlert('Network error. Please check your connection and try again.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign In';
+      }
+    });
+  </script>
+</body>
+</html>

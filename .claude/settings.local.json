@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-Content \"C:\\\\Users\\\\rohan\\\\travel-agent-\\\\updated-data-weather.json\")",
+      "Bash(ConvertFrom-Json)",
+      "Bash(Select-Object -First 1)",
+      "Bash(ConvertTo-Json -Depth 3)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\rohan\\\\travel-agent-\" -Force | Where-Object {$_.Name -match '^\\\\.'} | Select-Object Name)"
+    ]
+  }
+}

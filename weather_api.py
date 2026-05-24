@@ -1,12 +1,14 @@
-from flask import Flask, request, jsonify
-import requests
+import os
 import re
+import requests
+from flask import request, jsonify, Blueprint
+from dotenv import load_dotenv
 
-from flask import Blueprint
+load_dotenv()
 
 weather_api = Blueprint('weather_api', __name__)
 
-TOMORROW_API_KEY = "Gi0Ug2Yab5opfpbBy5fQ6J3lJdL9aAbG" 
+TOMORROW_API_KEY = os.getenv("TOMORROW_API_KEY", "")
 
 def is_coordinate(location):
     """Validate latitude,longitude format"""
@@ -126,4 +128,3 @@ def get_weather():
 
 
 
-#http://127.0.0.1:9000/weather?location=28.6139,77.2090

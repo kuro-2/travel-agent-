@@ -1,0 +1,224 @@
+{
+  "places": [
+    {
+      "name": "Mumbai",
+      "state": "Maharashtra",
+      "description": "Financial capital of India with a stunning coastline, vibrant nightlife, and a blend of colonial and modern architecture.",
+      "best_time": "November to February",
+      "climate": "Tropical",
+      "attractions": ["Gateway of India", "Marine Drive", "Elephanta Caves", "Juhu Beach", "Chhatrapati Shivaji Terminus", "Dharavi", "Siddhivinayak Temple"],
+      "food": ["Vada Pav", "Pav Bhaji", "Bombay Sandwich", "Bhel Puri", "Seafood"],
+      "transport": "Well-connected by air (CSIA), trains (CST, LTT, Dadar), and buses. Local trains are the lifeline of the city.",
+      "tips": "Avoid June to September (heavy monsoons). The city is safe at night but always use registered cabs."
+    },
+    {
+      "name": "Delhi",
+      "state": "Delhi",
+      "description": "The capital of India, a city of contrasts where Mughal monuments stand beside ultramodern malls. Packed with history and culture.",
+      "best_time": "October to March",
+      "climate": "Semi-arid",
+      "attractions": ["Red Fort", "India Gate", "Qutub Minar", "Humayun's Tomb", "Lotus Temple", "Jama Masjid", "Chandni Chowk"],
+      "food": ["Butter Chicken", "Chole Bhature", "Parathas", "Chaat", "Kebabs"],
+      "transport": "Excellent metro connectivity. Well-connected by air (IGI Airport), rail (NDLS, NZM), and road.",
+      "tips": "Summers (April-June) are extremely hot. Winters (Dec-Jan) can have fog that disrupts flights and trains."
+    },
+    {
+      "name": "Jaipur",
+      "state": "Rajasthan",
+      "description": "The Pink City of India, famous for its stunning palaces, forts, and vibrant bazaars. A must-visit on the Golden Triangle circuit.",
+      "best_time": "October to March",
+      "climate": "Semi-arid",
+      "attractions": ["Amber Fort", "Hawa Mahal", "City Palace", "Jantar Mantar", "Nahargarh Fort", "Jal Mahal", "Johari Bazaar"],
+      "food": ["Dal Baati Churma", "Ghevar", "Laal Maas", "Kachori", "Rajasthani Thali"],
+      "transport": "Connected by air (JAI airport), rail, and road. Tuk-tuks and taxis are popular within the city.",
+      "tips": "Summers are brutally hot (45°C+). Negotiate prices at local bazaars. Carry water when exploring forts."
+    },
+    {
+      "name": "Agra",
+      "state": "Uttar Pradesh",
+      "description": "Home to the iconic Taj Mahal, one of the Seven Wonders of the World. A city of unparalleled Mughal heritage.",
+      "best_time": "October to March",
+      "climate": "Semi-arid",
+      "attractions": ["Taj Mahal", "Agra Fort", "Fatehpur Sikri", "Mehtab Bagh", "Itmad-ud-Daulah", "Kinari Bazaar"],
+      "food": ["Petha", "Bedai", "Mughlai cuisine", "Biryani"],
+      "transport": "Connected by rail (AGC), Yamuna Expressway from Delhi. Tonga and e-rickshaws near monuments.",
+      "tips": "Visit Taj Mahal at sunrise for the best photos. Avoid Fridays (Taj is closed). Book tickets online to skip queues."
+    },
+    {
+      "name": "Goa",
+      "state": "Goa",
+      "description": "India's party capital and beach haven. Known for pristine beaches, Portuguese architecture, spice plantations, and a relaxed vibe.",
+      "best_time": "November to February",
+      "climate": "Tropical",
+      "attractions": ["Calangute Beach", "Baga Beach", "Dudhsagar Falls", "Old Goa Churches", "Anjuna Flea Market", "Fort Aguada", "Palolem Beach"],
+      "food": ["Fish Curry Rice", "Goan Prawn Curry", "Bebinca", "Vindaloo", "Xacuti"],
+      "transport": "Connected by air (GOI), rail (Madgaon/Thivim), and road. Rent a scooter for exploring beaches.",
+      "tips": "Monsoon (June-September) brings lush greenery but rough seas and some beach shacks close. North Goa is party-focused, South Goa is quieter."
+    },
+    {
+      "name": "Varanasi",
+      "state": "Uttar Pradesh",
+      "description": "One of the oldest living cities in the world and the spiritual heart of India. Situated on the banks of the Ganges River.",
+      "best_time": "October to March",
+      "climate": "Humid subtropical",
+      "attractions": ["Dashashwamedh Ghat", "Assi Ghat", "Kashi Vishwanath Temple", "Sarnath", "Manikarnika Ghat", "Ganga Aarti"],
+      "food": ["Banarasi Paan", "Kachori Sabzi", "Thandai", "Malaiyo", "Banarasi Biryani"],
+      "transport": "Connected by air (VNS), rail (BSB/MGS). Auto-rickshaws and boats are the primary local transport.",
+      "tips": "Early morning boat ride on the Ganges is a must. Respectful attire required at temples. Book accommodation early during festivals like Diwali."
+    },
+    {
+      "name": "Bangalore",
+      "state": "Karnataka",
+      "description": "The Silicon Valley of India. A cosmopolitan tech hub known for its pleasant year-round climate, parks, and thriving food and pub scene.",
+      "best_time": "September to February",
+      "climate": "Tropical savanna",
+      "attractions": ["Lalbagh Botanical Garden", "Cubbon Park", "Bangalore Palace", "ISKCON Temple", "Vidhana Soudha", "UB City"],
+      "food": ["Masala Dosa", "Bisi Bele Bath", "Filter Coffee", "Mangalorean Seafood", "Biryani"],
+      "transport": "Connected by air (KIA), Namma Metro is expanding. Cab services are widely available.",
+      "tips": "Traffic is heavy; use metro or cabs. Weather is pleasant year-round. Tech parks are concentrated in the east and north."
+    },
+    {
+      "name": "Hyderabad",
+      "state": "Telangana",
+      "description": "The City of Nizams. Famous for its biryani, stunning Islamic architecture, pearls, and a booming IT sector.",
+      "best_time": "October to February",
+      "climate": "Tropical",
+      "attractions": ["Charminar", "Golconda Fort", "Ramoji Film City", "Hussain Sagar Lake", "Salar Jung Museum", "Birla Mandir"],
+      "food": ["Hyderabadi Biryani", "Haleem", "Osmania Biscuits", "Double Ka Meetha", "Irani Chai"],
+      "transport": "Connected by air (RGIA), MMTS rail, and expanding metro. Cab services are widely available.",
+      "tips": "Buy pearls only from certified shops at Laad Bazaar. Visit Golconda Fort for the evening light and sound show."
+    },
+    {
+      "name": "Chennai",
+      "state": "Tamil Nadu",
+      "description": "The cultural capital of South India. Known for classical dance, Carnatic music, ancient temples, Marina Beach, and auto industry.",
+      "best_time": "November to February",
+      "climate": "Tropical",
+      "attractions": ["Marina Beach", "Kapaleeshwarar Temple", "Fort St. George", "Mahabalipuram", "Elliot's Beach", "Government Museum"],
+      "food": ["Idli Sambar", "Dosa", "Chettinad Cuisine", "Filter Coffee", "Kothu Parotta"],
+      "transport": "Connected by air (MAA), suburban rail, and expanding metro. Auto-rickshaws are plentiful.",
+      "tips": "Summers (March-June) are very hot and humid. The northeast monsoon (Oct-Dec) brings heavy rains. Dress conservatively at temples."
+    },
+    {
+      "name": "Kolkata",
+      "state": "West Bengal",
+      "description": "The City of Joy. The cultural, intellectual, and artistic capital of India with colonial grandeur and incredible street food.",
+      "best_time": "October to March",
+      "climate": "Humid subtropical",
+      "attractions": ["Victoria Memorial", "Howrah Bridge", "Dakshineswar Kali Temple", "Park Street", "Indian Museum", "Kumartuli"],
+      "food": ["Rosogolla", "Mishti Doi", "Kathi Roll", "Fish Curry", "Biryani"],
+      "transport": "Connected by air (CCU), Kolkata Metro (oldest in India), trains (Howrah/Sealdah), and iconic yellow taxis.",
+      "tips": "Durga Puja (October) is a spectacular festival — the city transforms completely. Avoid summers (very hot and humid)."
+    },
+    {
+      "name": "Udaipur",
+      "state": "Rajasthan",
+      "description": "The City of Lakes. One of the most romantic cities in India with gorgeous lake palaces, intricate havelis, and Rajput culture.",
+      "best_time": "September to March",
+      "climate": "Semi-arid",
+      "attractions": ["City Palace", "Lake Pichola", "Lake Palace", "Jag Mandir", "Fateh Sagar Lake", "Bagore Ki Haveli", "Sajjangarh Monsoon Palace"],
+      "food": ["Dal Baati Churma", "Gatte ki Sabzi", "Mawa Kachori", "Rajasthani Thali"],
+      "transport": "Connected by air (UDR), rail. Auto-rickshaws and taxis within the city.",
+      "tips": "Hire a boat on Lake Pichola at sunset. The city gets very hot in summer. Book rooftop restaurants in advance for lake views."
+    },
+    {
+      "name": "Kochi",
+      "state": "Kerala",
+      "description": "The gateway to Kerala. A cosmopolitan port city with a fascinating blend of Chinese, Portuguese, Dutch, and British heritage.",
+      "best_time": "November to February",
+      "climate": "Tropical",
+      "attractions": ["Chinese Fishing Nets", "Fort Kochi", "Mattancherry Palace", "Jewish Synagogue", "Cherai Beach", "Marine Drive"],
+      "food": ["Kerala Fish Curry", "Appam with Stew", "Puttu and Kadala Curry", "Prawn Moilee", "Kerala Biryani"],
+      "transport": "Connected by air (COK), rail (Ernakulam), and road. Ferry is a popular and scenic local transport.",
+      "tips": "Avoid the monsoon if you want beaches. The backwaters are best explored by houseboat. Kathakali performances are a must-see."
+    },
+    {
+      "name": "Shimla",
+      "state": "Himachal Pradesh",
+      "description": "The Queen of Hills and former summer capital of British India. Charming colonial architecture, lush pine forests, and mountain views.",
+      "best_time": "March to June and September to November",
+      "climate": "Humid subtropical highland",
+      "attractions": ["Mall Road", "The Ridge", "Jakhu Temple", "Kufri", "Christ Church", "Toy Train (Kalka-Shimla)"],
+      "food": ["Siddu", "Chha Gosht", "Madra", "Trout Fish", "Aktori"],
+      "transport": "Connected by rail (Kalka-Shimla Toy Train, UNESCO Heritage), road from Delhi (~360 km). No flights to Shimla town.",
+      "tips": "Snow in December-February makes it magical but chains/4WD needed. Mall Road is vehicle-free — walk around freely."
+    },
+    {
+      "name": "Darjeeling",
+      "state": "West Bengal",
+      "description": "The Queen of the Hills in the eastern Himalayas. World-famous for its tea gardens, views of Kangchenjunga, and Toy Train.",
+      "best_time": "March to May and September to November",
+      "climate": "Highland climate",
+      "attractions": ["Tiger Hill Sunrise", "Darjeeling Himalayan Railway", "Happy Valley Tea Estate", "Peace Pagoda", "Batasia Loop", "Zoo"],
+      "food": ["Momos", "Thukpa", "Darjeeling Tea", "Gundruk", "Sel Roti"],
+      "transport": "Nearest airport is Bagdogra (NJP). New Jalpaiguri by rail, then shared jeeps or Toy Train to Darjeeling.",
+      "tips": "Monsoon (June-August) brings landslides. Book Tiger Hill jeep the evening before. Layer clothing — mornings are cold."
+    },
+    {
+      "name": "Manali",
+      "state": "Himachal Pradesh",
+      "description": "A high-altitude Himalayan resort town, the gateway to Lahaul-Spiti and Leh-Ladakh. Popular for skiing, trekking, and paragliding.",
+      "best_time": "March to June and October to November",
+      "climate": "Alpine",
+      "attractions": ["Rohtang Pass", "Solang Valley", "Hadimba Temple", "Old Manali", "Beas River", "Vashisht Hot Springs"],
+      "food": ["Dham", "Trout Fish", "Siddu", "Tibetan Momos", "Thukpa"],
+      "transport": "Connected by road from Delhi (~550 km). Nearest airport is Bhuntar (Kullu). Road can close due to snow.",
+      "tips": "Rohtang Pass requires a permit (book online). Carry warm clothes even in June. Acclimatise before heading to Leh."
+    },
+    {
+      "name": "Amritsar",
+      "state": "Punjab",
+      "description": "The spiritual heart of Sikhism, home to the magnificent Golden Temple (Harmandir Sahib). Also the site of Jallianwala Bagh.",
+      "best_time": "October to March",
+      "climate": "Semi-arid",
+      "attractions": ["Golden Temple", "Jallianwala Bagh", "Wagah Border Ceremony", "Durgiana Temple", "Partition Museum"],
+      "food": ["Amritsari Kulcha", "Butter Chicken (origin)", "Lassi", "Fish Tikka", "Langar at Golden Temple"],
+      "transport": "Connected by air (ATQ), rail. Auto-rickshaws and cycle-rickshaws within the city.",
+      "tips": "Golden Temple is open 24/7 and is free. Cover your head and remove shoes before entering. Wagah Border ceremony is at sunset."
+    },
+    {
+      "name": "Mysuru",
+      "state": "Karnataka",
+      "description": "The City of Palaces. Known for its magnificent Mysore Palace, jasmine flowers, silk sarees, yoga traditions, and the grand Dasara festival.",
+      "best_time": "October to February",
+      "climate": "Tropical savanna",
+      "attractions": ["Mysore Palace", "Chamundi Hills", "Brindavan Gardens", "Mysore Zoo", "St. Philomena's Cathedral"],
+      "food": ["Mysore Pak", "Mysore Masala Dosa", "Obbattu", "Bisi Bele Bath", "Filter Coffee"],
+      "transport": "Connected by rail (MYS), road from Bangalore (~145 km). No commercial airport.",
+      "tips": "Visit during Dasara (October) when the palace is lit with 100,000 bulbs. Book Brindavan Gardens visit for the evening musical fountain."
+    },
+    {
+      "name": "Rishikesh",
+      "state": "Uttarakhand",
+      "description": "The Yoga Capital of the World and the Adventure Capital of India. Situated on the banks of the Ganges, a gateway to the Himalayas.",
+      "best_time": "September to November and February to May",
+      "climate": "Subtropical highland",
+      "attractions": ["Laxman Jhula", "Ram Jhula", "Triveni Ghat", "Neelkanth Mahadev Temple", "Beatles Ashram", "River Rafting"],
+      "food": ["Sattvic (vegetarian) food", "Aloo Puri", "Lassi", "Chai"],
+      "transport": "Nearest airport is Jolly Grant (Dehradun). Connected by rail (Haridwar, 25 km). Regular buses from Delhi.",
+      "tips": "Non-vegetarian food and alcohol are banned. Wear life jackets for rafting. The Ganga Aarti at Triveni Ghat is mesmerising."
+    },
+    {
+      "name": "Jaisalmer",
+      "state": "Rajasthan",
+      "description": "The Golden City rising from the Thar Desert. Known for its stunning sandstone fort, sand dunes, and camel safaris.",
+      "best_time": "October to February",
+      "climate": "Arid desert",
+      "attractions": ["Jaisalmer Fort", "Sam Sand Dunes", "Patwon Ki Haveli", "Gadisar Lake", "Kuldhara Ghost Village", "Desert Festival"],
+      "food": ["Ker Sangri", "Dal Baati Churma", "Gatte ki Khichdi", "Camel Milk"],
+      "transport": "Connected by air (JSA), rail (JU). Jeeps and taxis are the main local transport.",
+      "tips": "Nights in the desert can be cold even in winter. Book overnight desert camp in advance. Avoid May-August (extreme heat, 45°C+)."
+    },
+    {
+      "name": "Puri",
+      "state": "Odisha",
+      "description": "One of the Char Dham pilgrimage sites, famous for the Jagannath Temple, Rath Yatra festival, and beautiful beaches.",
+      "best_time": "October to February",
+      "climate": "Tropical",
+      "attractions": ["Jagannath Temple", "Puri Beach", "Konark Sun Temple", "Chilika Lake", "Raghurajpur Crafts Village"],
+      "food": ["Mahaprasad (temple food)", "Dalma", "Chenna Poda", "Pakhala Bhata", "Seafood"],
+      "transport": "Connected by air (Bhubaneswar, 60 km), rail (PURI station). Taxis and auto-rickshaws locally.",
+      "tips": "Non-Hindus cannot enter Jagannath Temple. Visit Konark Sun Temple, a UNESCO site, on a day trip. Rath Yatra (June/July) draws millions."
+    }
+  ]
+}

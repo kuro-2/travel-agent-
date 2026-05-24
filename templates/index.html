@@ -4,156 +4,342 @@
   <meta charset="UTF-8">
   <title>Travel Agent</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      margin: 0;
       font-family: 'Roboto', sans-serif;
-      background: linear-gradient(to right, #dfe9f3, #ffffff);
+      background: linear-gradient(135deg, #dfe9f3 0%, #f5f9ff 100%);
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      padding: 12px;
     }
 
-    .chat-container {
+    .chat-wrapper {
       width: 100%;
-      max-width: 600px;
-      background: #ffffff;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      border-radius: 12px;
-      overflow: hidden;
+      max-width: 680px;
+      height: 90vh;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(74, 144, 226, 0.15);
       display: flex;
       flex-direction: column;
-      height: 80vh;
+      overflow: hidden;
     }
 
+    /* ── Header ── */
     .header {
-      background-color: #4a90e2;
-      color: white;
-      padding: 20px;
-      text-align: center;
-      font-size: 1.8em;
-      font-weight: bold;
-      letter-spacing: 1px;
+      background: #4a90e2;
+      color: #fff;
+      padding: 0 20px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
     }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-icon { font-size: 1.4em; }
+    .header-title {
+      font-size: 1.15em;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .user-badge {
+      background: rgba(255,255,255,0.18);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.8em;
+      font-weight: 500;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .logout-btn {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.4);
+      color: #fff;
+      border-radius: 8px;
+      padding: 5px 12px;
+      font-size: 0.8em;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .logout-btn:hover { background: rgba(255,255,255,0.35); }
 
+    /* ── Chat box ── */
     .chat-box {
       flex: 1;
       padding: 20px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 14px;
+      scroll-behavior: smooth;
     }
 
     .message {
-      max-width: 80%;
-      padding: 12px 16px;
+      max-width: 78%;
+      padding: 11px 16px;
       border-radius: 18px;
-      line-height: 1.5;
+      line-height: 1.55;
+      font-size: 0.93em;
+      word-wrap: break-word;
+      white-space: pre-wrap;
     }
-
-    .user {
+    .message.user {
       align-self: flex-end;
-      background-color: #e0f7fa;
+      background: #d6eaff;
+      color: #1a3a5c;
+      border-bottom-right-radius: 4px;
     }
-
-    .bot {
+    .message.bot {
       align-self: flex-start;
-      background-color: #f1f1f1;
+      background: #f1f4f8;
+      color: #2c3e50;
+      border-bottom-left-radius: 4px;
     }
 
+    /* typing indicator */
+    .typing {
+      align-self: flex-start;
+      background: #f1f4f8;
+      border-radius: 18px;
+      border-bottom-left-radius: 4px;
+      padding: 12px 18px;
+      display: none;
+      gap: 5px;
+      align-items: center;
+    }
+    .typing span {
+      width: 7px;
+      height: 7px;
+      background: #9ab3cc;
+      border-radius: 50%;
+      display: inline-block;
+      animation: bounce 1.2s infinite;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30%            { transform: translateY(-6px); }
+    }
+
+    /* ── Input area ── */
     .input-area {
       display: flex;
-      border-top: 1px solid #ccc;
+      border-top: 1px solid #e8edf2;
+      background: #fafcff;
+      flex-shrink: 0;
     }
-
-    input {
+    #userInput {
       flex: 1;
-      padding: 15px;
-      font-size: 1em;
+      padding: 14px 16px;
+      font-size: 0.95em;
+      font-family: inherit;
       border: none;
-      border-radius: 0;
       outline: none;
+      background: transparent;
+      color: #2c3e50;
     }
-
-    button {
-      background-color: #4a90e2;
-      color: white;
+    #userInput::placeholder { color: #b0bec5; }
+    .send-btn {
+      background: #4a90e2;
+      color: #fff;
       border: none;
-      padding: 0 20px;
+      padding: 0 22px;
       font-size: 1em;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      font-family: inherit;
+      font-weight: 500;
+      transition: background 0.2s;
     }
+    .send-btn:hover { background: #357ab8; }
+    .send-btn:disabled { background: #a0c4f0; cursor: not-allowed; }
 
-    button:hover {
-      background-color: #357ab8;
+    /* ── Suggestions ── */
+    .suggestions {
+      padding: 0 20px 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .suggestion-chip {
+      background: #f0f6ff;
+      border: 1px solid #c7ddf7;
+      color: #4a90e2;
+      border-radius: 20px;
+      padding: 5px 13px;
+      font-size: 0.78em;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      font-family: inherit;
+    }
+    .suggestion-chip:hover {
+      background: #dbeeff;
+      border-color: #4a90e2;
     }
 
     @media (max-width: 600px) {
-      .chat-container {
-        height: 90vh;
-        margin: 10px;
-      }
-
-      .header {
-        font-size: 1.5em;
-      }
+      body { padding: 0; align-items: flex-start; }
+      .chat-wrapper { height: 100vh; border-radius: 0; max-width: 100%; }
+      .user-badge { display: none; }
     }
   </style>
 </head>
 <body>
-  <div class="chat-container">
-    <div class="header">Travel Agent</div>
+  <div class="chat-wrapper">
+
+    <div class="header">
+      <div class="header-left">
+        <span class="header-icon">✈️</span>
+        <span class="header-title">Travel Agent</span>
+      </div>
+      <div class="header-right">
+        <span class="user-badge" id="userBadge">{{ user_email }}</span>
+        <button class="logout-btn" onclick="logout()">Sign out</button>
+      </div>
+    </div>
+
     <div class="chat-box" id="chatBox">
-      <div class="message bot">Hi there! I'm your travel assistant. Ask me about weather, trains, or road routes in India. 😊</div>
+      <div class="message bot">
+        Hi{% if user_name %}, {{ user_name }}{% endif %}! I'm your AI travel assistant for India.
+        Ask me about weather, train schedules, road routes, or tourist spots across the country.
+      </div>
+      <div class="typing" id="typingIndicator">
+        <span></span><span></span><span></span>
+      </div>
     </div>
+
+    <div class="suggestions">
+      <button class="suggestion-chip" onclick="fill('Weather in Mumbai')">Weather in Mumbai</button>
+      <button class="suggestion-chip" onclick="fill('Trains from Delhi to Jaipur')">Trains from Delhi to Jaipur</button>
+      <button class="suggestion-chip" onclick="fill('Best time to visit Goa')">Best time to visit Goa</button>
+      <button class="suggestion-chip" onclick="fill('Road trip from Bangalore to Mysuru')">Bangalore to Mysuru road</button>
+    </div>
+
     <div class="input-area">
-      <input type="text" id="userInput" placeholder="Type your message..." onkeypress="handleKey(event)">
-      <button onclick="sendMessage()">Send</button>
+      <input
+        type="text"
+        id="userInput"
+        placeholder="Ask about weather, trains, roads, places…"
+        onkeydown="handleKey(event)"
+        autocomplete="off"
+        maxlength="500"
+      >
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
     </div>
+
   </div>
 
   <script>
-    async function sendMessage() {
-      const input = document.getElementById('userInput');
-      const text = input.value.trim();
-      if (!text) return;
+    const chatBox = document.getElementById('chatBox');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const typingIndicator = document.getElementById('typingIndicator');
 
-      appendMessage(text, 'user');
-      input.value = '';
-      
+    // Load chat history on page load
+    window.addEventListener('DOMContentLoaded', loadHistory);
+
+    async function loadHistory() {
       try {
-        const response = await fetch('/chat', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ message: text })
+        const res = await fetch('/history');
+        if (res.status === 401) { window.location.href = '/login'; return; }
+        const data = await res.json();
+        (data.messages || []).forEach(m => {
+          appendMessage(m.content, m.role === 'user' ? 'user' : 'bot', false);
         });
-
-        const data = await response.json();
-        appendMessage(data.response, 'bot');
-      } catch (error) {
-        appendMessage("Oops! Something went wrong.", 'bot');
+        scrollToBottom();
+      } catch {
+        // Silently ignore — history is optional
       }
     }
 
-    function appendMessage(text, sender) {
-      const chatBox = document.getElementById('chatBox');
-      const message = document.createElement('div');
-      message.className = 'message ' + sender;
-      message.textContent = text;
-      chatBox.appendChild(message);
+    async function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      appendMessage(text, 'user');
+      userInput.value = '';
+      userInput.disabled = true;
+      sendBtn.disabled = true;
+
+      // Move typing indicator to end
+      chatBox.appendChild(typingIndicator);
+      typingIndicator.style.display = 'flex';
+      scrollToBottom();
+
+      try {
+        const res = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text }),
+        });
+
+        if (res.status === 401) {
+          window.location.href = '/login';
+          return;
+        }
+
+        const data = await res.json();
+        typingIndicator.style.display = 'none';
+        appendMessage(data.response || data.error || 'No response received.', 'bot');
+      } catch {
+        typingIndicator.style.display = 'none';
+        appendMessage('Network error. Please check your connection and try again.', 'bot');
+      } finally {
+        userInput.disabled = false;
+        sendBtn.disabled = false;
+        userInput.focus();
+      }
+    }
+
+    function appendMessage(text, sender, scroll = true) {
+      // Insert before typing indicator if it's at the bottom
+      const msg = document.createElement('div');
+      msg.className = 'message ' + sender;
+      msg.textContent = text;
+      chatBox.insertBefore(msg, typingIndicator);
+      if (scroll) scrollToBottom();
+    }
+
+    function scrollToBottom() {
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    function handleKey(event) {
-      if (event.key === 'Enter') {
+    function handleKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
         sendMessage();
+      }
+    }
+
+    function fill(text) {
+      userInput.value = text;
+      userInput.focus();
+    }
+
+    async function logout() {
+      try {
+        await fetch('/auth/logout', { method: 'POST' });
+      } finally {
+        window.location.href = '/login';
       }
     }
   </script>

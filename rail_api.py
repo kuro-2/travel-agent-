@@ -1,11 +1,15 @@
 import http.client
 import json
-from flask import Flask, request, jsonify
+import os
+from flask import request, jsonify
 from flask import Blueprint
+from dotenv import load_dotenv
+
+load_dotenv()
 
 rail_api = Blueprint('rail_api', __name__)
 
-RAPIDAPI_KEY = "58a0107736msh08f7d81311e66e9p1863b4jsn3d8c8c29644d"
+RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY", "")
 RAPIDAPI_HOST = "indian-railway-irctc.p.rapidapi.com"
 RAPIDAPI_OTHER_HEADER = "rapid-api-database"
 
@@ -89,4 +93,3 @@ def get_train_schedule(train_identifier):
 
 
 
-#http://127.0.0.1:8000/train-info/12002
