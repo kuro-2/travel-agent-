@@ -192,6 +192,23 @@ def auth_callback():
     return redirect(url_for("index"))
 
 
+# ─── Debug (remove after confirming production env vars) ─────────────────────
+
+@app.route("/debug/env")
+def debug_env():
+    supabase_url = os.getenv("SUPABASE_URL", "NOT SET")
+    # Mask keys — show only first 8 chars
+    def mask(v): return (v[:8] + "...") if v and v != "NOT SET" else v
+    return jsonify({
+        "SUPABASE_URL":          supabase_url,
+        "SUPABASE_ANON_KEY":     mask(os.getenv("SUPABASE_ANON_KEY", "NOT SET")),
+        "SUPABASE_SERVICE_KEY":  mask(os.getenv("SUPABASE_SERVICE_KEY", "NOT SET")),
+        "HF_TOKEN":              mask(os.getenv("HF_TOKEN", "NOT SET")),
+        "FLASK_ENV":             os.getenv("FLASK_ENV", "NOT SET"),
+        "PORT":                  os.getenv("PORT", "NOT SET"),
+    })
+
+
 # ─── Chat API ─────────────────────────────────────────────────────────────────
 
 @app.route("/chat", methods=["POST"])
