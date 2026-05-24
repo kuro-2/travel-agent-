@@ -22,6 +22,34 @@ def geocode_place(place_name):
     except:
         return None
 
+def fetch_route(start: str, end: str) -> dict | None:
+    """Return route data dict, or None on failure. Callable without Flask context."""
+    start_coords = geocode_place(start)
+    end_coords   = geocode_place(end)
+    if not start_coords or not end_coords:
+        return None
+    try:
+        response = requests.get(
+            DIRECTIONS_URL,
+            headers={'Authorization': ORS_API_KEY},
+            params={
+                'start': f"{start_coords[0]},{start_coords[1]}",
+                'end':   f"{end_coords[0]},{end_coords[1]}",
+            },
+            timeout=10,
+        )
+        route    = response.json()['features'][0]['properties']['segments'][0]
+        duration = route['duration']
+        return {
+            "start": start, "end": end,
+            "distance_km":      round(route['distance'] / 1000, 2),
+            "duration_minutes": round(duration / 60, 1),
+            "eta": {"hours": int(duration // 3600), "minutes": round((duration % 3600) / 60, 1)},
+        }
+    except Exception:
+        return None
+
+
 @road_api.route('/route', methods=['GET'])
 def get_route():
     start = request.args.get('start')

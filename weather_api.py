@@ -50,6 +50,55 @@ def degrees_to_direction(degrees):
                  "South", "South-West", "West", "North-West"]
     return directions[round(degrees % 360 / 45) % 8] if degrees else "Unknown"
 
+def fetch_weather(location: str) -> dict | None:
+    """Return weather data dict for location, or None on failure. Callable without Flask context."""
+    try:
+        if is_coordinate(location):
+            lat, lon = map(float, location.split(','))
+            location_name = location
+        else:
+            geo_response = requests.get(
+                "https://api.tomorrow.io/v4/geocode/search",
+                headers={'apikey': TOMORROW_API_KEY},
+                params={'query': location, 'limit': 1},
+                timeout=8,
+            )
+            geo_response.raise_for_status()
+            geo_data = geo_response.json()
+            if not geo_data.get('features'):
+                return None
+            feature = geo_data['features'][0]
+            lon, lat = feature['geometry']['coordinates']
+            location_name = feature['properties']['name']
+
+        weather_response = requests.get(
+            "https://api.tomorrow.io/v4/weather/realtime",
+            headers={'apikey': TOMORROW_API_KEY},
+            params={
+                'location': f"{lat},{lon}",
+                'units': 'metric',
+                'fields': 'temperature,weatherCode,windSpeed,windDirection,humidity,precipitationIntensity,pressureSurfaceLevel',
+            },
+            timeout=8,
+        )
+        weather_response.raise_for_status()
+        values = weather_response.json()['data']['values']
+        return {
+            "location": location_name,
+            "real_time_weather": {
+                "temperature":       values.get('temperature'),
+                "weather_condition": get_weather_code_description(values.get('weatherCode')),
+                "wind_speed":        values.get('windSpeed'),
+                "wind_direction":    degrees_to_direction(values.get('windDirection')),
+                "humidity":          values.get('humidity'),
+                "precipitation":     values.get('precipitationIntensity', 0),
+                "air_pressure":      values.get('pressureSurfaceLevel'),
+            },
+        }
+    except Exception:
+        return None
+
+
 @weather_api.route('/weather', methods=['GET'])
 def get_weather():
     location = request.args.get('location')

@@ -1,5 +1,4 @@
 import os
-import uuid
 import logging
 from flask import (
     Flask, request, jsonify, session,
@@ -11,8 +10,12 @@ from promptflow_router import parse_and_respond
 from rail_api import rail_api
 from road_api import road_api
 from weather_api import weather_api
-from auth import require_auth, register_user, login_user, logout_supabase
-from db import save_message, get_chat_history, create_chat_session
+from auth import (
+    require_auth,
+    register_user, login_user, logout_supabase,
+    build_google_oauth_url, exchange_google_code,
+)
+from db import save_exchange, get_chat_history, create_chat_session, upsert_profile
 
 load_dotenv()
 
@@ -33,16 +36,20 @@ app.register_blueprint(weather_api)
 def index():
     if "user_id" not in session:
         return redirect(url_for("login_page"))
-    return render_template("index.html",
-                           user_email=session.get("user_email", ""),
-                           user_name=session.get("user_name", ""))
+    return render_template(
+        "index.html",
+        user_email=session.get("user_email", ""),
+        user_name=session.get("user_name", ""),
+        user_avatar=session.get("user_avatar", ""),
+    )
 
 
 @app.route("/login")
 def login_page():
     if "user_id" in session:
         return redirect(url_for("index"))
-    return render_template("login.html")
+    error = request.args.get("error", "")
+    return render_template("login.html", error=error)
 
 
 @app.route("/register")
@@ -52,13 +59,13 @@ def register_page():
     return render_template("register.html")
 
 
-# ─── Auth API ─────────────────────────────────────────────────────────────────
+# ─── Email / Password Auth ────────────────────────────────────────────────────
 
 @app.route("/auth/register", methods=["POST"])
 def auth_register():
     data = request.get_json(silent=True) or {}
-    email = (data.get("email") or "").strip().lower()
-    password = data.get("password") or ""
+    email     = (data.get("email") or "").strip().lower()
+    password  = data.get("password") or ""
     full_name = (data.get("full_name") or "").strip()
 
     if not email or not password:
@@ -71,20 +78,21 @@ def auth_register():
         return jsonify({"error": result["error"]}), 400
 
     if not result.get("confirmed"):
+        # Email confirmation is ON in Supabase — user must verify before logging in
         return jsonify({
             "success": True,
             "confirm_email": True,
-            "message": "Account created! Please check your email to confirm before signing in.",
+            "message": "Account created! Please check your email to confirm it before signing in.",
         })
 
-    _set_session(result["user_id"], result["email"], full_name)
+    _set_session(result["user_id"], result["email"], full_name, "")
     return jsonify({"success": True, "confirm_email": False})
 
 
 @app.route("/auth/login", methods=["POST"])
 def auth_login():
     data = request.get_json(silent=True) or {}
-    email = (data.get("email") or "").strip().lower()
+    email    = (data.get("email") or "").strip().lower()
     password = data.get("password") or ""
 
     if not email or not password:
@@ -94,7 +102,12 @@ def auth_login():
     if not result["success"]:
         return jsonify({"error": result["error"]}), 401
 
-    _set_session(result["user_id"], result["email"], result.get("full_name", ""))
+    _set_session(
+        result["user_id"],
+        result["email"],
+        result.get("full_name", ""),
+        result.get("avatar_url", ""),
+    )
     return jsonify({"success": True})
 
 
@@ -109,10 +122,65 @@ def auth_logout():
 @require_auth
 def auth_me():
     return jsonify({
-        "user_id": session["user_id"],
-        "email": session["user_email"],
-        "name": session.get("user_name", ""),
+        "user_id":    session["user_id"],
+        "email":      session["user_email"],
+        "name":       session.get("user_name", ""),
+        "avatar_url": session.get("user_avatar", ""),
     })
+
+
+# ─── Google OAuth ─────────────────────────────────────────────────────────────
+
+@app.route("/auth/google")
+def auth_google():
+    """Start the Google OAuth PKCE flow — redirect user to Google."""
+    if "user_id" in session:
+        return redirect(url_for("index"))
+
+    callback_url = url_for("auth_callback", _external=True)
+    try:
+        oauth_url, code_verifier = build_google_oauth_url(callback_url)
+    except Exception as e:
+        logger.error(f"Failed to build Google OAuth URL: {e}")
+        return redirect(url_for("login_page", error="google_unavailable"))
+
+    # Store verifier — needed in the callback to complete PKCE exchange
+    session["pkce_verifier"] = code_verifier
+    return redirect(oauth_url)
+
+
+@app.route("/auth/callback")
+def auth_callback():
+    """Supabase redirects here after Google auth with ?code=<auth_code>."""
+    error = request.args.get("error")
+    if error:
+        desc = request.args.get("error_description", "Google sign-in was cancelled.")
+        logger.warning(f"OAuth callback error: {error} — {desc}")
+        return redirect(url_for("login_page", error=desc))
+
+    auth_code    = request.args.get("code", "")
+    code_verifier = session.pop("pkce_verifier", None)
+
+    if not auth_code or not code_verifier:
+        return redirect(url_for("login_page", error="Invalid OAuth state. Please try again."))
+
+    result = exchange_google_code(auth_code, code_verifier)
+    if not result["success"]:
+        return redirect(url_for("login_page", error=result.get("error", "Google sign-in failed.")))
+
+    user_id    = result["user_id"]
+    email      = result["email"]
+    full_name  = result.get("full_name", "")
+    avatar_url = result.get("avatar_url", "")
+
+    # Keep the profile table in sync (name/avatar may change on Google side)
+    try:
+        upsert_profile(user_id, full_name, avatar_url, "google")
+    except Exception as e:
+        logger.warning(f"Profile upsert after Google OAuth failed: {e}")
+
+    _set_session(user_id, email, full_name, avatar_url)
+    return redirect(url_for("index"))
 
 
 # ─── Chat API ─────────────────────────────────────────────────────────────────
@@ -125,7 +193,7 @@ def chat():
     if not user_msg:
         return jsonify({"error": "Message cannot be empty."}), 400
 
-    user_id = session["user_id"]
+    user_id    = session["user_id"]
     session_id = session.get("db_session_id")
 
     try:
@@ -136,10 +204,9 @@ def chat():
 
     if session_id:
         try:
-            save_message(session_id, user_id, "user", user_msg)
-            save_message(session_id, user_id, "assistant", bot_reply)
+            save_exchange(session_id, user_id, user_msg, bot_reply)
         except Exception as e:
-            logger.warning(f"Failed to save message to DB: {e}")
+            logger.warning(f"Failed to save exchange to DB: {e}")
 
     return jsonify({"response": bot_reply})
 
@@ -160,10 +227,11 @@ def history():
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
-def _set_session(user_id: str, email: str, full_name: str):
-    session["user_id"] = user_id
+def _set_session(user_id: str, email: str, full_name: str, avatar_url: str) -> None:
+    session["user_id"]    = user_id
     session["user_email"] = email
-    session["user_name"] = full_name
+    session["user_name"]  = full_name
+    session["user_avatar"] = avatar_url
     db_session_id = create_chat_session(user_id)
     session["db_session_id"] = db_session_id
 

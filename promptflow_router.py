@@ -1,11 +1,13 @@
 import os
 import json
-import requests
 import logging
 import re
 from datetime import datetime
 from dotenv import load_dotenv
 from huggingface_hub import InferenceClient
+from weather_api import fetch_weather
+from road_api import fetch_route
+from rail_api import fetch_train_by_name_or_number
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -71,24 +73,17 @@ except Exception as e:
 # Define helper functions
 def get_weather(location):
     """Return current weather summary for the location, using API or fallback."""
-    api_url = f"http://127.0.0.1:5000/weather?location={location}"
     logger.info(f"Fetching weather for {location}")
-    
-    try:
-        res = requests.get(api_url, timeout=5)
-        if res.status_code == 200:
-            data = res.json()
-            weather = data.get('real_time_weather', {})
-            return (f"The current weather in {data.get('location', location)} is "
-                    f"{weather.get('weather_condition','Unknown')} with temperature "
-                    f"{weather.get('temperature','N/A')}°C, humidity "
-                    f"{weather.get('humidity','N/A')}%, wind "
-                    f"{weather.get('wind_speed','N/A')} m/s "
-                    f"{weather.get('wind_direction','')}.")
-    except Exception as e:
-        logger.warning(f"API request failed for weather ({location}): {e}")
-    
-    # Fallback to local JSON data
+    data = fetch_weather(location)
+    if data:
+        w = data.get('real_time_weather', {})
+        return (f"The current weather in {data.get('location', location)} is "
+                f"{w.get('weather_condition','Unknown')} with temperature "
+                f"{w.get('temperature','N/A')}°C, humidity "
+                f"{w.get('humidity','N/A')}%, wind "
+                f"{w.get('wind_speed','N/A')} m/s "
+                f"{w.get('wind_direction','')}.")
+
     for entry in fallback_weather_data:
         if entry.get('location','').lower() == location.lower():
             w = entry.get('real_time_weather', {})
@@ -99,129 +94,90 @@ def get_weather(location):
                     f"{w.get('humidity','N/A')}%, wind "
                     f"{w.get('wind_speed','N/A')} m/s "
                     f"{w.get('wind_direction','')}.")
-    
+
     return f"Sorry, I don't have weather data for {location}."
 
 def get_train_by_number(train_number):
     """Return train schedule summary by train number, using API or fallback."""
-    api_url = f"http://127.0.0.1:5000/train-info/{train_number}"
     logger.info(f"Fetching train info for train #{train_number}")
-    
     try:
-        res = requests.get(api_url, timeout=5)
-        if res.status_code == 200:
-            data = res.json()
-            trains = data.get('indian_railways', {}).get('trains', [])
+        api_response = fetch_train_by_name_or_number(train_number)
+        body_data = api_response.get("body", [])
+        if body_data:
+            trains = body_data[0].get("trains", [])
             if trains:
-                train = trains[0]  # Take first train
-                name = train.get('train_name','')
+                train = trains[0]
+                name     = train.get('trainName', '')
                 schedule = train.get('schedule', [])
                 if schedule:
-                    dep = schedule[0].get('departureTime','--')
-                    arr = schedule[-1].get('arrivalTime','--')
-                    dist = schedule[-1].get('distance','N/A')
+                    dep  = schedule[0].get('departureTime', '--')
+                    arr  = schedule[-1].get('arrivalTime', '--')
+                    dist = schedule[-1].get('distance', 'N/A')
                     return (f"Train {train_number} ({name}) starts at {dep} and ends "
                             f"at {arr}, covering {dist} km.")
     except Exception as e:
-        logger.warning(f"API request failed for train info ({train_number}): {e}")
-    
-    # Fallback to local JSON data
+        logger.warning(f"API call failed for train #{train_number}: {e}")
+
     for train in fallback_train_data:
         if train.get('train_number') == str(train_number):
-            name = train.get('train_name','')
-            sched = train.get('schedule',[])
+            name  = train.get('train_name', '')
+            sched = train.get('schedule', [])
             if sched:
-                logger.info(f"Using fallback data for train #{train_number}")
-                dep = sched[0].get('departureTime','--')
-                arr = sched[-1].get('arrivalTime','--')
-                dist = sched[-1].get('distance','N/A')
+                dep  = sched[0].get('departureTime', '--')
+                arr  = sched[-1].get('arrivalTime', '--')
+                dist = sched[-1].get('distance', 'N/A')
                 return (f"Train {train_number} ({name}) starts at {dep} and ends "
                         f"at {arr}, covering {dist} km.")
-    
+
     return f"Sorry, no train with number {train_number} was found."
 
 def get_trains_by_route(start, end):
-    """Return schedules of trains between start and end stations."""
-    api_url = f"http://127.0.0.1:5000/trains-between?start={start}&end={end}"
+    """Return schedules of trains between start and end stations (fallback JSON only)."""
     logger.info(f"Fetching trains between {start} and {end}")
-    
-    try:
-        res = requests.get(api_url, timeout=5)
-        if res.status_code == 200:
-            data = res.json().get('trains', [])
-            if data:
-                results = []
-                for train in data[:3]:  # Limit to 3 trains for brevity
-                    num = train.get('train_number')
-                    name = train.get('train_name','')
-                    dep = train.get('departure_time','--')
-                    arr = train.get('arrival_time','--')
-                    results.append(f"Train {num} ({name}) departs at {dep} and arrives at {arr}.")
-                return " ".join(results)
-    except Exception as e:
-        logger.warning(f"API request failed for trains between {start} and {end}: {e}")
-    
-    # Fallback to local JSON data
-    start_low = start.lower()
-    end_low = end.lower()
+    start_low, end_low = start.lower(), end.lower()
     matches = []
-    
+
     for train in fallback_train_data:
         schedule = train.get('schedule', [])
-        indices = {}
-        
-        # Find start and end stations in the schedule
+        indices  = {}
         for i, stop in enumerate(schedule):
-            name = stop.get('stationName','').lower()
+            name = stop.get('stationName', '').lower()
             if start_low in name:
                 indices['start'] = i
             if end_low in name:
                 indices['end'] = i
-        
         if 'start' in indices and 'end' in indices and indices['start'] < indices['end']:
-            num = train.get('train_number')
-            name = train.get('train_name','')
-            dep = schedule[indices['start']].get('departureTime','--')
-            arr = schedule[indices['end']].get('arrivalTime','--')
+            num  = train.get('train_number')
+            name = train.get('train_name', '')
+            dep  = schedule[indices['start']].get('departureTime', '--')
+            arr  = schedule[indices['end']].get('arrivalTime', '--')
             matches.append(f"Train {num} ({name}) departs at {dep} and arrives at {arr}.")
-    
+
     if matches:
-        logger.info(f"Using fallback data for trains between {start} and {end}")
-        return " ".join(matches[:3])  # Limit to 3 trains for brevity
-    
+        return " ".join(matches[:3])
     return f"Sorry, no trains found from {start} to {end}."
 
 def get_road_info(start, end):
     """Return driving time and distance between start and end (API or fallback)."""
-    api_url = f"http://127.0.0.1:5000/route?start={start},India&end={end},India"
     logger.info(f"Fetching road info from {start} to {end}")
-    
-    try:
-        res = requests.get(api_url, timeout=5)
-        if res.status_code == 200:
-            data = res.json()
-            eta = data.get('eta', {})
-            hours = eta.get('hours', 0)
-            minutes = eta.get('minutes', 0)
-            dist = data.get('distance_km', 'N/A')
-            return (f"By road, from {start} to {end} it takes about "
-                    f"{hours} hours {minutes} minutes covering {dist} km.")
-    except Exception as e:
-        logger.warning(f"API request failed for road info ({start} to {end}): {e}")
-    
-    # Fallback to local JSON data
+    data = fetch_route(f"{start},India", f"{end},India")
+    if data:
+        eta = data.get('eta', {})
+        return (f"By road, from {start} to {end} it takes about "
+                f"{eta.get('hours',0)} hours {eta.get('minutes',0)} minutes "
+                f"covering {data.get('distance_km','N/A')} km.")
+
     for route in fallback_routes_data:
-        s = route.get('start','').split(',')[0].lower()
-        e = route.get('end','').split(',')[0].lower()
+        s = route.get('start', '').split(',')[0].lower()
+        e = route.get('end',   '').split(',')[0].lower()
         if s == start.lower() and e == end.lower():
-            logger.info(f"Using fallback data for road info from {start} to {end}")
-            eta = route.get('eta', {})
+            eta   = route.get('eta', {})
             hours = eta.get('hours', 0)
-            minutes = round(eta.get('minutes', 0))
-            dist = route.get('distance_km', 'N/A')
+            mins  = round(eta.get('minutes', 0))
+            dist  = route.get('distance_km', 'N/A')
             return (f"By road, from {start} to {end} it takes about "
-                    f"{hours} hours {minutes} minutes covering {dist} km.")
-    
+                    f"{hours} hours {mins} minutes covering {dist} km.")
+
     return f"Sorry, I don't have road info from {start} to {end}."
 
 def get_place_info(place):
@@ -411,10 +367,34 @@ def rule_based_classify(message):
         if start and end:
             return {"intent": "road", "start": start, "end": end}
     
+    # Broad travel catch-all — if ANY travel-adjacent word is present, treat as general_travel
+    broad_travel_keywords = [
+        "go to", "going to", "visit", "travel", "stay", "hotel", "hostel", "guesthouse",
+        "cheap", "budget", "wifi", "internet", "work from", "wfh", "nomad",
+        "how to reach", "how to get", "route", "way to", "cab", "bus", "taxi",
+        "trek", "hike", "trip", "tour", "place", "destination", "location",
+    ]
+    if any(kw in message for kw in broad_travel_keywords):
+        # Try to extract a destination
+        indian_places = [
+            "kasol", "manali", "shimla", "dharamsala", "mcleod ganj", "spiti", "leh", "ladakh",
+            "rishikesh", "haridwar", "mussoorie", "nainital", "dehradun", "kedarnath", "badrinath",
+            "goa", "kerala", "munnar", "alleppey", "coorg", "ooty", "kodaikanal",
+            "jaipur", "udaipur", "jodhpur", "jaisalmer", "pushkar", "ajmer",
+            "varanasi", "agra", "delhi", "mumbai", "bangalore", "chennai", "kolkata", "hyderabad",
+            "darjeeling", "sikkim", "gangtok", "meghalaya", "shillong", "cherrapunji",
+            "andaman", "lakshadweep", "pondicherry", "hampi", "mysore", "coorg",
+            "srinagar", "gulmarg", "pahalgam", "vaishnodevi", "amritsar",
+            "puri", "bhubaneswar", "konark", "vizag", "tirupati", "hampi",
+        ]
+        for place in indian_places:
+            if place in message:
+                return {"intent": "general_travel", "location": place.title()}
+        return {"intent": "general_travel"}
+
     return {"intent": "unknown"}
 
 # ----------------- HF Inference API Setup -----------------
-# Read Hugging Face token from environment
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
 llm_client = None
@@ -431,278 +411,319 @@ else:
     except Exception as e:
         logger.error(f"Failed to initialize HF Inference client: {e}")
 
+# System prompt that gives the LLM its travel expert identity.
+# Used in every LLM call so the model always responds in character.
+TRAVEL_EXPERT_SYSTEM = """You are an expert AI travel assistant with deep knowledge of:
+- Indian travel: cities, states, hill stations, beaches, heritage sites, culture, food, festivals, history
+- Indian transport: trains (IRCTC, routes, classes, booking tips), buses, flights, road trips, local transport
+- International travel: visa processes, passport requirements, popular destinations, travel advisories
+- Practical travel: packing lists, travel insurance, budgeting, solo travel, family travel, honeymoon travel
+- Accommodation: hotels, hostels, homestays, resorts, camping, OYO, Booking.com, Airbnb tips; budget vs premium options
+- Work-from-home & digital nomad travel: WiFi-reliable stays, co-working spaces, internet connectivity at hill stations
+  and remote destinations, best WFH-friendly hostels/guesthouses, power backup, mobile data (Jio/BSNL/Airtel coverage),
+  cost of long stays, digital nomad communities in India (Kasol, McLeod Ganj, Rishikesh, Goa, Manali, etc.)
+- Adventure & outdoor: trekking (Himalayas, Western Ghats), wildlife safaris, water sports, camping
+- Health & safety: vaccinations, altitude sickness, monsoon travel, travel safety tips
+- Food & culture: regional Indian cuisine, street food, dietary restrictions, cultural etiquette
+- Seasonal advice: monsoon travel, winter hill stations, summer escapes, festival seasons
+
+When answering complex questions that mix travel + stay + connectivity + budget:
+- Address EVERY part of the question — don't skip WiFi, budget, or "how to get there" aspects
+- For "how to get there": give the full route (train/bus to nearest railhead, then local transport)
+- For stays: give 2-3 specific budget options with approximate price ranges and WiFi notes
+- For WFH/WiFi: mention actual connectivity quality, mobile network coverage, and backup options
+- Always mention if starting city is unclear: give options from multiple major cities
+
+You give honest, practical, well-organized answers. Be conversational and friendly like a knowledgeable friend,
+not a formal guide. If asked about real-time data (live prices, exact availability), explain you can provide
+general guidance and suggest where to check for live data (IRCTC, Google Flights, Booking.com, etc.).
+Never say you cannot help with a travel question — always give your best knowledge-based answer."""
+
 # ----------------- Improved LLM Prompting -----------------
 def classify_intent(message):
     """
-    Ask the LLM to classify the intent and extract parameters.
-    Returns the intent JSON dict, or uses rule-based fallback.
+    Classify user intent via LLM, falling back to rule-based on failure.
     """
     if not llm_client:
         logger.warning("LLM unavailable, using rule-based classification")
         return rule_based_classify(message)
-    
-    prompt = f"""
-User message: "{message}"
 
-Your task is to determine the user's intent and extract relevant parameters. The intent must be one of:
-- "weather": User wants to know weather conditions for a specific location
-- "train_number": User is asking about a specific train identified by its number
-- "train_route": User wants to know about trains between two locations
-- "road": User wants information about road travel between two places
-- "trip_planning": User wants comprehensive travel information for a trip (multiple modes of transport)
-- "place_info": User wants information about a specific place (tourist attractions, etc.)
-- "best_time": User wants to know the best time to visit a place
-- "unknown": The intent doesn't match any of the above categories
+    prompt = f"""User message: "{message}"
 
-Extract the parameters carefully:
-1. For "weather", "place_info", "best_time": Extract "location" (city/place name)
-2. For "train_number": Extract "train_number" (5-digit number)
-3. For "train_route" or "road": Extract "start" and "end" locations
-4. For "trip_planning": Extract "start" and "end" locations
+Classify the intent. Choose exactly one from:
+- "weather"         → wants current weather for a location
+- "train_number"    → asking about a specific train by its 5-digit number
+- "train_route"     → wants trains between two cities
+- "road"            → wants road travel time/distance between two places
+- "trip_planning"   → wants a full trip plan covering transport + destination info
+- "place_info"      → wants tourist/attraction info about a place
+- "best_time"       → wants to know the best season/time to visit a place
+- "greeting"        → just saying hi, hello, or asking for help/what you can do
+- "general_travel"  → ANY other travel question (visa, packing, flights, hotels, trekking, budgeting, food, culture, safety, international destinations, tips, etc.)
+- "unknown"         → completely unrelated to travel (e.g. maths, coding, recipes)
 
-Parse carefully and focus on the actual request. For locations, extract proper nouns or place names.
+Rules:
+- Use "general_travel" broadly — if it's travel-related in any way, prefer it over "unknown"
+- Only use "unknown" when the message has absolutely nothing to do with travel
 
-Output format (JSON):
-{{"intent": "one_of_the_intents", ...relevant_parameters}}
+Parameters to extract:
+- weather / place_info / best_time: "location"
+- train_number: "train_number"
+- train_route / road / trip_planning: "start" and "end"
+- general_travel: "location" if a specific destination/place is mentioned (else omit)
+- greeting / unknown: no extra parameters
+
+Output format (JSON only, no explanation):
+{{"intent": "...", ...params}}
 
 Examples:
-- "What's the weather like in Mumbai?" → {{"intent":"weather", "location":"Mumbai"}}
-- "Tell me about train 12345" → {{"intent":"train_number", "train_number":"12345"}}
-- "Are there trains from Delhi to Mumbai?" → {{"intent":"train_route", "start":"Delhi", "end":"Mumbai"}}
-- "How long does it take to drive from Bengaluru to Hyderabad?" → {{"intent":"road", "start":"Bengaluru", "end":"Hyderabad"}}
-- "I'm planning a trip from Chennai to Kolkata" → {{"intent":"trip_planning", "start":"Chennai", "end":"Kolkata"}}
-- "Tell me about attractions in Jaipur" → {{"intent":"place_info", "location":"Jaipur"}}
-- "When is the best time to visit Goa?" → {{"intent":"best_time", "location":"Goa"}}
+- "What's the weather in Mumbai?" → {{"intent":"weather","location":"Mumbai"}}
+- "Trains from Delhi to Mumbai?" → {{"intent":"train_route","start":"Delhi","end":"Mumbai"}}
+- "Drive time from Pune to Goa?" → {{"intent":"road","start":"Pune","end":"Goa"}}
+- "Plan a trip from Chennai to Kerala" → {{"intent":"trip_planning","start":"Chennai","end":"Kerala"}}
+- "Tell me about Jaipur" → {{"intent":"place_info","location":"Jaipur"}}
+- "Best time to visit Ladakh?" → {{"intent":"best_time","location":"Ladakh"}}
+- "Hi there!" → {{"intent":"greeting"}}
+- "Do I need a visa for Thailand?" → {{"intent":"general_travel"}}
+- "Best budget hotels in Rishikesh?" → {{"intent":"general_travel","location":"Rishikesh"}}
+- "What to pack for a Himalayan trek?" → {{"intent":"general_travel"}}
+- "Is it safe to travel solo in Rajasthan?" → {{"intent":"general_travel","location":"Rajasthan"}}
+- "I want to go to Kasol for work from home, how to get there and cheap stays with WiFi?" → {{"intent":"general_travel","location":"Kasol"}}
+- "Cheapest flights from Bangalore to Goa?" → {{"intent":"general_travel","location":"Goa"}}
+- "What is 2+2?" → {{"intent":"unknown"}}
 
-Return only the valid JSON object with one of the specified intents. Nothing else.
-"""
-    
+Return only the JSON. Nothing else."""
+
     try:
-        messages = [
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
-        
         response_text = ""
         stream = llm_client.chat.completions.create(
             model="meta-llama/Llama-3.3-70B-Instruct",
-            messages=messages, 
-            temperature=0.1,  # Low temperature for more deterministic output
-            max_tokens=300,
+            messages=[
+                {"role": "system", "content": TRAVEL_EXPERT_SYSTEM},
+                {"role": "user",   "content": prompt},
+            ],
+            temperature=0.1,
+            max_tokens=150,
             stream=True
         )
-        
         for chunk in stream:
-            if chunk.choices[0].delta.content is not None:
+            if chunk.choices and chunk.choices[0].delta.content is not None:
                 response_text += chunk.choices[0].delta.content
-        
-        # Try to parse JSON response
-        try:
-            # Clean up response text - find the first { and last }
-            json_start = response_text.find('{')
-            json_end = response_text.rfind('}') + 1
-            if json_start >= 0 and json_end > json_start:
-                json_str = response_text[json_start:json_end]
-                result = json.loads(json_str)
-                logger.info(f"LLM classification succeeded with result: {result}")
-                return result
-            else:
-                raise ValueError("No JSON object found in response")
-        except Exception as e:
-            logger.warning(f"Failed to parse LLM response as JSON: {e}, response: {response_text}")
-            return rule_based_classify(message)
-            
+
+        json_start = response_text.find('{')
+        json_end   = response_text.rfind('}') + 1
+        if json_start >= 0 and json_end > json_start:
+            result = json.loads(response_text[json_start:json_end])
+            logger.info(f"Intent classified: {result}")
+            return result
+        raise ValueError("No JSON in response")
+
     except Exception as e:
-        logger.warning(f"LLM classification failed: {e}")
+        logger.warning(f"LLM classification failed ({e}), falling back to rules")
         return rule_based_classify(message)
 
 def generate_response(message, data_collection=None, intent=None):
     """
-    Ask the LLM to generate a conversational answer from data collection.
-    Falls back to a simple template if LLM is unavailable.
+    Generate a conversational reply using the LLM.
+    - When data_collection is provided: synthesise the fetched data into a friendly answer.
+    - When data_collection is empty/None (general_travel): answer entirely from LLM knowledge.
     """
-    if not data_collection:
-        return "I don't have any information to share on that topic."
-    
     if not llm_client:
-        # Simple fallback response template
-        return f"Here's what I found: {' '.join(data_collection)}"
-    
-    # Create a more specific prompt based on intent
-    intent_context = ""
-    if intent == "trip_planning":
-        intent_context = "The user is planning a trip. Focus on providing helpful travel advice that covers transportation options, weather conditions, and attraction information in a well-organized way."
-    elif intent == "place_info":
-        intent_context = "The user wants information about a place. Focus on what makes this place special, attractions, and practical tips."
-    elif intent in ["train_route", "train_number"]:
-        intent_context = "The user wants train information. Provide clear details about schedules, timings, and any relevant travel tips."
-    elif intent == "road":
-        intent_context = "The user wants road travel information. Provide clear details about travel time, distance, and any relevant driving tips."
-    
-    prompt = f"""
-The user asked: "{message}"
+        if data_collection:
+            return data_collection[0] if len(data_collection) == 1 else "Here's what I found:\n\n- " + "\n- ".join(data_collection)
+        return "I'm unable to answer right now as the AI service is not configured."
 
-I've collected the following information to answer their question:
-{' '.join(data_collection)}
+    intent_context = {
+        "trip_planning":  "Give a well-organised trip plan covering how to get there, current weather at the destination, what to see, and the ideal travel season.",
+        "place_info":     "Highlight what makes this place unique, top attractions, food, and practical visitor tips.",
+        "train_number":   "Present the train schedule clearly with departure/arrival times and key stops.",
+        "train_route":    "List the available trains with timings and suggest the best option.",
+        "road":           "State the driving time and distance clearly, and add any useful road-trip tips.",
+        "weather":        "Describe the current weather naturally and suggest what to wear or bring.",
+        "best_time":      "Explain the best seasons to visit with reasons (weather, festivals, crowds, prices).",
+        "general_travel": (
+            "Answer EVERY part of the user's question thoroughly. Structure your response with clear sections:\n"
+            "- If they ask HOW TO GET THERE: give the complete route (train to nearest railhead + bus/taxi onward) "
+            "from major cities like Delhi, Mumbai, Chandigarh as applicable. Include travel time and cost estimates.\n"
+            "- If they ask about STAYS/ACCOMMODATION: give 3-5 specific budget/mid-range options with "
+            "approximate nightly rates (₹ range). Mention WiFi quality honestly for each if relevant.\n"
+            "- If they mention WORK FROM HOME / WiFi: rate the internet connectivity at the destination honestly, "
+            "name specific hostels/guesthouses known for good WiFi, mention mobile network coverage (Jio/BSNL/Airtel), "
+            "and suggest backup options (local SIM, hotspot).\n"
+            "- If they mention BUDGET: suggest the cheapest realistic options without sacrificing basic needs.\n"
+            "Be specific with names, prices, and practical tips — not vague generalities."
+        ),
+    }.get(intent or "", "")
+
+    if data_collection:
+        user_prompt = f"""The user asked: "{message}"
+
+Here is the fetched data to base your answer on:
+{chr(10).join(data_collection)}
 
 {intent_context}
 
-Your task is to create a helpful, conversational response that:
-1. Directly addresses the user's query in a personalized way
-2. Provides all the relevant information in a natural, well-organized manner
-3. Is friendly and helpful, like a knowledgeable travel advisor
-4. Includes practical advice where appropriate
-5. Organizes information logically if there are multiple parts
+Write a natural, friendly response that directly answers the user. Do not mention
+"fetched data" or the structure of this prompt. Be conversational and helpful."""
+    else:
+        # No API data — answer entirely from training knowledge
+        user_prompt = f"""The user asked: "{message}"
 
-Make your response sound natural and engaging, not like you're just reading data.
-Do not mention "collected information" or the structure of this prompt in your answer.
-Focus on giving the information the user wants in a clear, conversational style.
-"""
-    
+{intent_context}
+
+Answer this travel question thoroughly and helpfully from your knowledge.
+Be practical, specific, and friendly. Organise the answer clearly."""
+
     try:
-        messages = [
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
-        
         response_text = ""
         stream = llm_client.chat.completions.create(
             model="meta-llama/Llama-3.3-70B-Instruct",
-            messages=messages, 
-            temperature=0.7,  # Higher temperature for more natural language
-            max_tokens=800,
+            messages=[
+                {"role": "system", "content": TRAVEL_EXPERT_SYSTEM},
+                {"role": "user",   "content": user_prompt},
+            ],
+            temperature=0.7,
+            max_tokens=1500,
             stream=True
         )
-        
         for chunk in stream:
-            if chunk.choices[0].delta.content is not None:
+            if chunk.choices and chunk.choices[0].delta.content is not None:
                 response_text += chunk.choices[0].delta.content
-        
         return response_text
+
     except Exception as e:
         logger.warning(f"LLM response generation failed: {e}")
-        # Fallback to simply joining the data pieces with better formatting
-        if len(data_collection) == 1:
-            return data_collection[0]
-        else:
-            return f"Here's what I found:\n\n- " + "\n- ".join(data_collection)
+        if data_collection:
+            return data_collection[0] if len(data_collection) == 1 else "Here's what I found:\n\n- " + "\n- ".join(data_collection)
+        return "I'm having trouble connecting to the AI service right now. Please try again in a moment."
 
 def validate_parameters(intent, info):
-    """Validate and clean up extracted parameters"""
+    """Validate and clean up extracted parameters. Returns (valid, params_or_error)."""
+    if intent in ["general_travel", "greeting", "unknown"]:
+        return True, {}
+
     if intent in ["weather", "place_info", "best_time"]:
         location = info.get("location", "").strip()
         if not location or len(location) < 2:
-            return False, f"Please specify a valid location for the {intent.replace('_', ' ')}."
+            return False, f"Could you tell me which place you're asking about?"
         return True, {"location": location}
-    
-    elif intent == "train_number":
+
+    if intent == "train_number":
         num = info.get("train_number", "").strip()
         if not num or not re.match(r'^\d{5}$', num):
             return False, "Please provide a valid 5-digit train number."
         return True, {"train_number": num}
-    
-    elif intent in ["train_route", "road", "trip_planning"]:
+
+    if intent in ["train_route", "road", "trip_planning"]:
         start = info.get("start", "").strip()
-        end = info.get("end", "").strip()
+        end   = info.get("end",   "").strip()
         if not start or len(start) < 2:
-            return False, f"Please specify a valid starting location for your {intent.replace('_', ' ')}."
+            return False, "Could you tell me the starting city for your journey?"
         if not end or len(end) < 2:
-            return False, f"Please specify a valid destination for your {intent.replace('_', ' ')}."
+            return False, "Could you tell me the destination city for your journey?"
         return True, {"start": start, "end": end}
-    
-    return False, "I couldn't understand your request. Please try again with more details."
+
+    return True, {}
 
 def parse_and_respond(message):
     """
-    Main entry: classify the intent with the LLM or rules,
-    call the appropriate functions, then generate the final answer.
-    Handles complex queries like trip planning that need multiple API calls.
+    Main entry point.
+    1. Classify intent (LLM or rule-based fallback).
+    2. For data-backed intents: call the relevant APIs then generate response.
+    3. For general_travel / greeting: answer directly from LLM knowledge.
+    4. For unknown (non-travel): politely decline.
     """
-    logger.info(f"Processing user message: {message}")
-    
-    # 1. Classify and extract parameters
-    info = classify_intent(message)
-    intent = info.get("intent", "unknown")
-    
-    logger.info(f"Classified intent: {intent} with info: {info}")
-    
-    # Handle unknown intent
+    logger.info(f"Processing: {message}")
+
+    # ── Greetings handled locally — no LLM call needed ───────────
+    stripped = message.strip().lower().rstrip("!.,?")
+    if stripped in {"hi", "hello", "hey", "hola", "namaste", "help",
+                    "what can you do", "commands", "start"}:
+        return (
+            "Hello! I'm your AI travel assistant. I can help you with:\n\n"
+            "• Weather in any Indian city\n"
+            "• Train schedules by number or route\n"
+            "• Road travel time and distance\n"
+            "• Tourist info, best time to visit any place\n"
+            "• Full trip planning (transport + destination guide)\n"
+            "• Visa info, packing tips, budget travel, hotels, trekking, and any other travel question\n\n"
+            "What would you like to know?"
+        )
+
+    # ── Classify ─────────────────────────────────────────────────
+    info   = classify_intent(message)
+    intent = info.get("intent", "general_travel")
+    logger.info(f"Intent: {intent} | params: {info}")
+
+    # ── Greeting from LLM classification ─────────────────────────
+    if intent == "greeting":
+        return (
+            "Hey there! Ask me anything travel-related — weather, trains, road trips, "
+            "tourist spots, visa questions, packing advice, budget tips, or anything else "
+            "about travelling in India or abroad. What's on your mind?"
+        )
+
+    # ── Non-travel question ───────────────────────────────────────
     if intent == "unknown":
-        return "I'm sorry, I couldn't understand your request. You can ask me about weather, train schedules, road routes, or tourist information about places in India."
-    
-    # 2. Validate parameters
+        return (
+            "I'm specialised in travel! Ask me about destinations, trains, weather, "
+            "road routes, trip planning, visas, packing, hotels, or anything else travel-related."
+        )
+
+    # ── Validate parameters for data-backed intents ───────────────
     valid, result = validate_parameters(intent, info)
     if not valid:
         return result
-    
-    # Update info with validated parameters
     info.update(result)
-    
-    # 3. Call the appropriate function based on intent
+
+    # ── General travel: enrich with place/weather data if a location was detected ──
+    if intent == "general_travel":
+        location = info.get("location", "").strip()
+        enriched = []
+        if location:
+            place = get_place_info(location)
+            if place:
+                enriched.append(place)
+            enriched.append(get_best_time_to_visit(location))
+            weather = get_weather(location)
+            if "don't have weather" not in weather:
+                enriched.append(weather)
+        return generate_response(message, data_collection=enriched or None, intent="general_travel")
+
+    # ── Data-backed intents: fetch from APIs then generate ─────────
     collected_data = []
-    
+
     if intent == "weather":
-        loc = info.get("location")
-        weather_data = get_weather(loc)
-        collected_data.append(weather_data)
-    
+        collected_data.append(get_weather(info["location"]))
+
     elif intent == "train_number":
-        num = info.get("train_number")
-        train_data = get_train_by_number(num)
-        collected_data.append(train_data)
-    
+        collected_data.append(get_train_by_number(info["train_number"]))
+
     elif intent == "train_route":
-        start = info.get("start")
-        end = info.get("end")
-        train_route_data = get_trains_by_route(start, end)
-        collected_data.append(train_route_data)
-    
+        collected_data.append(get_trains_by_route(info["start"], info["end"]))
+
     elif intent == "road":
-        start = info.get("start")
-        end = info.get("end")
-        road_data = get_road_info(start, end)
-        collected_data.append(road_data)
-    
+        collected_data.append(get_road_info(info["start"], info["end"]))
+
     elif intent == "place_info":
-        loc = info.get("location")
-        place_info = get_place_info(loc)
-        if place_info:
-            collected_data.append(place_info)
-        else:
-            collected_data.append(f"I don't have specific tourist information about {loc}.")
-    
+        loc  = info["location"]
+        data = get_place_info(loc)
+        collected_data.append(data if data else f"I don't have specific data about {loc} yet.")
+
     elif intent == "best_time":
-        loc = info.get("location")
-        best_time = get_best_time_to_visit(loc)
-        collected_data.append(best_time)
-    
+        collected_data.append(get_best_time_to_visit(info["location"]))
+
     elif intent == "trip_planning":
-        # Comprehensive trip planning with multiple APIs
-        start = info.get("start")
-        end = info.get("end")
-        
-        # Get transportation options
-        train_route_data = get_trains_by_route(start, end)
-        road_data = get_road_info(start, end)
-        
-        # Get destination weather and tourist info
-        weather_data = get_weather(end)
-        place_info = get_place_info(end)
-        best_time = get_best_time_to_visit(end)
-        
-        # Collect all relevant data
-        collected_data.append(train_route_data)
-        collected_data.append(road_data)
-        collected_data.append(weather_data)
-        if place_info:
-            collected_data.append(place_info)
-        collected_data.append(best_time)
-    
-    # 4. Generate final response
-    final_response = generate_response(message, collected_data, intent)
-    return final_response
+        start, end = info["start"], info["end"]
+        collected_data.extend([
+            get_trains_by_route(start, end),
+            get_road_info(start, end),
+            get_weather(end),
+        ])
+        place = get_place_info(end)
+        if place:
+            collected_data.append(place)
+        collected_data.append(get_best_time_to_visit(end))
+
+    return generate_response(message, collected_data, intent)
 

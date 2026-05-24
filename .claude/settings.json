@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Test-Path \"c:\\\\Users\\\\rohan\\\\travel-agent-\\\\.env\")",
+      "Bash(which python3.11 2>/dev/null || which python3.10 2>/dev/null || which python3 2>/dev/null || ls /usr/bin/python* 2>/dev/null || echo \"none found\")",
+      "Read(//usr/**)",
+      "Read(//c/Users/rohan/AppData/Local/Programs/Python//**)",
+      "Bash(ls \"/c/Python\"*)",
+      "Read(//c/Program Files/**)",
+      "PowerShell(cd \"C:\\\\Users\\\\rohan\\\\travel-agent-\"; $env:FLASK_ENV=\"development\"; Start-Process -FilePath \".\\\\venv\\\\Scripts\\\\python.exe\" -ArgumentList \"chat_server.py\" -NoNewWindow -PassThru | Select-Object -ExpandProperty Id)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5000/login)",
+      "Bash(sleep 4 && cat \"/c/Users/rohan/AppData/Local/Temp/claude/c--Users-rohan-travel-agent-/23ceb277-bafd-4521-aa47-73f5967d7df0/tasks/bknnzncm6.output\" 2>/dev/null | head -30)",
+      "Read(//c/Users/rohan/AppData/Local/Temp/claude/c--Users-rohan-travel-agent-/23ceb277-bafd-4521-aa47-73f5967d7df0/tasks/**)",
+      "PowerShell(cd \"C:\\\\Users\\\\rohan\\\\travel-agent-\"; Start-Process -FilePath \".\\\\venv\\\\Scripts\\\\python.exe\" -ArgumentList \"chat_server.py\" -NoNewWindow; Start-Sleep -Seconds 4; $r = Invoke-WebRequest -Uri \"http://localhost:5000/login\" -UseBasicParsing -TimeoutSec 5 -ErrorAction SilentlyContinue; Write-Host \"HTTP $\\($r.StatusCode\\)\")",
+      "Bash(supabase --version)",
+      "Bash(npx supabase *)",
+      "Bash(python -c ' *)",
+      "Bash(ls -la /c/Users/rohan/ | head -20)",
+      "Read(//c/Users/rohan//**)",
+      "Bash(venv\\\\Scripts\\\\pip install *)",
+      "Bash(python -m pip install gunicorn --quiet)",
+      "Bash(rm startup.txt)"
+    ]
+  }
+}
