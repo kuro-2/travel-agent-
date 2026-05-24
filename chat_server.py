@@ -23,7 +23,12 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
-app.secret_key = os.getenv("FLASK_SECRET_KEY", os.urandom(32))
+_secret = os.getenv("FLASK_SECRET_KEY")
+if not _secret:
+    import warnings
+    warnings.warn("FLASK_SECRET_KEY not set — using random key. Sessions will not survive restarts.", stacklevel=2)
+    _secret = os.urandom(32)
+app.secret_key = _secret
 
 app.register_blueprint(rail_api)
 app.register_blueprint(road_api)
@@ -237,4 +242,6 @@ def _set_session(user_id: str, email: str, full_name: str, avatar_url: str) -> N
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.getenv("PORT", 5000))
+    debug = os.getenv("FLASK_ENV") == "development"
+    app.run(host="0.0.0.0", port=port, debug=debug)
